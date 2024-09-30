@@ -36,10 +36,10 @@
                 <thead>
                 <tr>
                     <th scope="col">
-                        <a href="{{ route(Route::currentRouteName(), array_merge(request()->all(), ['sort_by' => 'name', 'order_by' => ($sort_by === 'name' && $order_by === 'asc') ? 'desc' : 'asc'])) }}">
+                        <a href="{{ route(Route::currentRouteName(), array_merge(request()->all(), ['sort_by' => 'campaign_name', 'order_by' => ($sort_by === 'campaign_name' && $order_by === 'asc') ? 'desc' : 'asc'])) }}">
                             Campaign Name
                         </a>
-                        @include('partials.sort-icons', ['sort' => 'name', 'order' => $order_by])
+                        @include('partials.sort-icons', ['sort' => 'campaign_name', 'order' => $order_by])
                     </th>
                     <th scope="col">
                         <a href="{{ route(Route::currentRouteName(), array_merge(request()->all(), ['sort_by' => 'brand_name', 'order_by' => ($sort_by === 'brand_name' && $order_by === 'asc') ? 'desc' : 'asc'])) }}">
@@ -76,8 +76,8 @@
                 <tbody>
                 @foreach($campaigns as $campaign)
                     <tr>
-                        <td>{{ $campaign->name }}</td>
-                        <td>{{ $campaign->brand->name }}</td>
+                        <td>{{ $campaign->campaign_name }}</td>
+                        <td>{{ $campaign->brand_name }}</td>
                         <td>{{ $campaign->impressions_count }}</td>
                         <td>{{ $campaign->interactions_count }}</td>
                         <td>{{ $campaign->conversions_count }}</td>

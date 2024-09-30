@@ -3,17 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\Brand;
-use App\Models\Campaign;
-use App\Repositories\CampaignRepository;
+use App\Repositories\DailyMetricRepository;
 use Illuminate\Http\Request;
 
 class CampaignController extends Controller
 {
-    protected CampaignRepository $campaignRepository;
+    protected DailyMetricRepository $dailyMetricRepository;
 
-    public function __construct(CampaignRepository $campaignRepository)
+    public function __construct(DailyMetricRepository $dailyMetricRepository)
     {
-        $this->campaignRepository = $campaignRepository;
+        $this->dailyMetricRepository = $dailyMetricRepository;
     }
     /**
      * Display a listing of the resource.
@@ -24,7 +23,7 @@ class CampaignController extends Controller
 
         $filters = $request->only(['brand', 'start_date', 'end_date', 'sort_by', 'order_by']);
 
-        $campaigns = $this->campaignRepository->getCampaigns($filters, $perPage);
+        $campaigns = $this->dailyMetricRepository->getCampaigns($filters, $perPage);
 
         return view('campaigns.index', [
             'brands' => Brand::orderBy('name', 'asc')->get(),

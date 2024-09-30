@@ -151,3 +151,10 @@ Your task is to enhance this page to rectify these issues and ensure that the pa
 -   The database is seeded with a large volume of data, so you may need to optimise your queries and indexing strategies.
 
 Good luck, and happy coding!
+
+
+## Command to aggregate metrics for campaigns
+
+```
+./vendor/bin/sail artisan metrics:aggregate  
+```

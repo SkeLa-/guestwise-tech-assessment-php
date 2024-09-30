@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Console\Commands;
 
 use App\Models\DailyMetric;
@@ -16,27 +17,29 @@ class AggregateCampaignMetrics extends Command
     public function handle()
     {
         $startDate = $this->getEarliestDate();
-
-        $endDate = $this->getLatestDate();
+        $endDate = $this->getLatestDate()->endOfDay();
 
         while ($startDate->lte($endDate)) {
             $this->info("Processing metrics for: " . $startDate->toDateString());
 
-            Campaign::with('brand')->each(function ($campaign) use ($startDate) {
-                $startOfDay = $startDate->startOfDay()->toDateTimeString();
-                $endOfDay = $startDate->endOfDay()->toDateTimeString();
+            $startOfDay = $startDate->startOfDay()->toDateTimeString();
+            $endOfDay = $startDate->endOfDay()->toDateTimeString();
 
-                $impressions = $campaign->impressions()
+            Campaign::with('brand')->each(function ($campaign) use ($startOfDay, $endOfDay, $startDate) {
+                $impressionsCount = DB::table('impressions')
+                    ->where('campaign_id', $campaign->id)
                     ->whereBetween('occurred_at', [$startOfDay, $endOfDay])
-                    ->get();
+                    ->count();
 
-                $interactions = $campaign->interactions()
+                $interactionsCount = DB::table('interactions')
+                    ->where('campaign_id', $campaign->id)
                     ->whereBetween('occurred_at', [$startOfDay, $endOfDay])
-                    ->get();
+                    ->count();
 
-                $conversions = $campaign->conversions()
+                $conversionsCount = DB::table('conversions')
+                    ->where('campaign_id', $campaign->id)
                     ->whereBetween('occurred_at', [$startOfDay, $endOfDay])
-                    ->get();
+                    ->count();
 
                 DailyMetric::updateOrCreate(
                     [
@@ -47,10 +50,9 @@ class AggregateCampaignMetrics extends Command
                         'campaign_name' => $campaign->name,
                         'brand_id' => $campaign->brand->id,
                         'brand_name' => $campaign->brand->name,
-                        'impressions_count' => $impressions->count(),
-                        'interactions_count' => $interactions->count(),
-                        'conversions_count' => $conversions->count(),
-                        'updated_at' => now(),
+                        'impressions_count' => $impressionsCount,
+                        'interactions_count' => $interactionsCount,
+                        'conversions_count' => $conversionsCount,
                     ]
                 );
             });
@@ -84,6 +86,6 @@ class AggregateCampaignMetrics extends Command
             ->filter()
             ->max();
 
-        return Carbon::parse($latestDate);
+        return Carbon::parse($latestDate)->addDay();
     }
 }

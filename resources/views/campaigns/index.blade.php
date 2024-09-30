@@ -13,7 +13,9 @@
                     <select name="brand" id="brand" class="form-control">
                         <option value="">All Brands</option>
                         @foreach($brands as $brand)
-                            <option value="{{ $brand->id }}" @if(request('brand') == $brand->id) selected @endif>{{ $brand->name }}</option>
+                            <option value="{{ $brand->id }}" @if(isset($filters['brand']) && $filters['brand'] == $brand->id) selected @endif>
+                                {{ $brand->name }}
+                            </option>
                         @endforeach
                     </select>
                 </div>
@@ -36,40 +38,34 @@
                 <thead>
                 <tr>
                     <th scope="col">
-                        <a href="{{ route(Route::currentRouteName(), array_merge(request()->all(), ['sort_by' => 'campaign_name', 'order_by' => ($sort_by === 'campaign_name' && $order_by === 'asc') ? 'desc' : 'asc'])) }}">
+                        <a href="{{ route(Route::currentRouteName(), array_merge(request()->query(), ['sort_by' => 'campaign_name', 'order_by' => ($sort_by === 'campaign_name' && $order_by === 'asc') ? 'desc' : 'asc'])) }}">
                             Campaign Name
                         </a>
-                        @include('partials.sort-icons', ['sort' => 'campaign_name', 'order' => $order_by])
                     </th>
                     <th scope="col">
-                        <a href="{{ route(Route::currentRouteName(), array_merge(request()->all(), ['sort_by' => 'brand_name', 'order_by' => ($sort_by === 'brand_name' && $order_by === 'asc') ? 'desc' : 'asc'])) }}">
+                        <a href="{{ route(Route::currentRouteName(), array_merge(request()->query(), ['sort_by' => 'brand_name', 'order_by' => ($sort_by === 'brand_name' && $order_by === 'asc') ? 'desc' : 'asc'])) }}">
                             Brand Name
                         </a>
-                        @include('partials.sort-icons', ['sort' => 'brand_name', 'order' => $order_by])
                     </th>
                     <th scope="col">
-                        <a href="{{ route(Route::currentRouteName(), array_merge(request()->all(), ['sort_by' => 'impressions_count', 'order_by' => ($sort_by === 'impressions_count' && $order_by === 'asc') ? 'desc' : 'asc'])) }}">
+                        <a href="{{ route(Route::currentRouteName(), array_merge($filters, ['sort_by' => 'impressions_count', 'order_by' => ($sort_by === 'impressions_count' && $order_by === 'asc') ? 'desc' : 'asc'])) }}">
                             Impressions
                         </a>
-                        @include('partials.sort-icons', ['sort' => 'impressions_count', 'order' => $order_by])
                     </th>
                     <th scope="col">
-                        <a href="{{ route(Route::currentRouteName(), array_merge(request()->all(), ['sort_by' => 'interactions_count', 'order_by' => ($sort_by === 'interactions_count' && $order_by === 'asc') ? 'desc' : 'asc'])) }}">
+                        <a href="{{ route(Route::currentRouteName(), array_merge($filters, ['sort_by' => 'interactions_count', 'order_by' => ($sort_by === 'interactions_count' && $order_by === 'asc') ? 'desc' : 'asc'])) }}">
                             Interactions
                         </a>
-                        @include('partials.sort-icons', ['sort' => 'interactions_count', 'order' => $order_by])
                     </th>
                     <th scope="col">
-                        <a href="{{ route(Route::currentRouteName(), array_merge(request()->all(), ['sort_by' => 'conversions_count', 'order_by' => ($sort_by === 'conversions_count' && $order_by === 'asc') ? 'desc' : 'asc'])) }}">
+                        <a href="{{ route(Route::currentRouteName(), array_merge($filters, ['sort_by' => 'conversions_count', 'order_by' => ($sort_by === 'conversions_count' && $order_by === 'asc') ? 'desc' : 'asc'])) }}">
                             Conversions
                         </a>
-                        @include('partials.sort-icons', ['sort' => 'conversions_count', 'order' => $order_by])
                     </th>
                     <th scope="col">
-                        <a href="{{ route(Route::currentRouteName(), array_merge(request()->all(), ['sort_by' => 'conversion_rate', 'order_by' => ($sort_by === 'conversion_rate' && $order_by === 'asc') ? 'desc' : 'asc'])) }}">
+                        <a href="{{ route(Route::currentRouteName(), array_merge($filters, ['sort_by' => 'conversion_rate', 'order_by' => ($sort_by === 'conversion_rate' && $order_by === 'asc') ? 'desc' : 'asc'])) }}">
                             Conversion Rate (%)
                         </a>
-                        @include('partials.sort-icons', ['sort' => 'conversion_rate', 'order' => $order_by])
                     </th>
                 </tr>
                 </thead>
@@ -81,7 +77,13 @@
                         <td>{{ $campaign->impressions_count }}</td>
                         <td>{{ $campaign->interactions_count }}</td>
                         <td>{{ $campaign->conversions_count }}</td>
-                        <td>{{ number_format(($campaign->conversions_count / $campaign->impressions_count), 4) }}%</td>
+                        <td>
+                            @if($campaign->impressions_count > 0)
+                                {{ number_format(($campaign->conversions_count / $campaign->impressions_count) * 100, 2) }}%
+                            @else
+                                0.00%
+                            @endif
+                        </td>
                     </tr>
                 @endforeach
                 </tbody>
@@ -89,7 +91,7 @@
         </div>
 
         <div class="my-5">
-            {{ $campaigns->appends(request()->all())->links() }}
+            {{ $campaigns->appends(array_merge($filters, $sorting))->links() }}
         </div>
     </div>
 @endsection

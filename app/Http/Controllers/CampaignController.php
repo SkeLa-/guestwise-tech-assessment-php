@@ -20,18 +20,21 @@ class CampaignController extends Controller
     public function index(Request $request)
     {
         $perPage = $request->input('per_page', 10);
-
-        $filters = $request->only(['brand', 'start_date', 'end_date', 'sort_by', 'order_by']);
-
-        $campaigns = $this->dailyMetricRepository->getCampaigns($filters, $perPage);
+        $filters = $request->only(['brand', 'start_date', 'end_date']);
+        $filters['start_date'] = !empty($filters['start_date']) ? $filters['start_date'] : date('Y-m-d', strtotime('-7 days'));
+        $filters['end_date'] = !empty($filters['end_date']) ? $filters['end_date'] : date('Y-m-d');
+        $sorting = $request->only(['sort_by', 'order_by']);
+        $campaigns = $this->dailyMetricRepository->getCampaigns(array_merge($filters, $sorting), $perPage);
 
         return view('campaigns.index', [
             'brands' => Brand::orderBy('name', 'asc')->get(),
             'campaigns' => $campaigns,
-            'start_date' => request('start_date', date('Y-m-d', strtotime('-7 days'))),
-            'end_date' => request('end_date', date('Y-m-d')),
-            'sort_by' => request('sort_by') ?? 'name',
-            'order_by' => request('order_by') ?? 'asc',
+            'filters' => $filters,
+            'sorting' => $sorting,
+            'start_date' => $filters['start_date'],
+            'end_date' => $filters['end_date'],
+            'sort_by' => $sorting['sort_by'] ?? 'name',
+            'order_by' => $sorting['order_by'] ?? 'asc',
         ]);
     }
 }

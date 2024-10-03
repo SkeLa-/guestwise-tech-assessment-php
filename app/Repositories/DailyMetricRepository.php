@@ -46,9 +46,10 @@ class DailyMetricRepository
         $startDate = $filters['start_date'] ?? now()->subWeek()->format('Y-m-d');
         $endDate = $filters['end_date'] ?? now()->format('Y-m-d');
         $brandId = $filters['brand'] ?? 'all';
+        $page = $filters['page'] ?? '1';
         $sortBy = $filters['sort_by'] ?? 'name';
         $orderBy = $filters['order_by'] ?? 'asc';
 
-        return "daily_metric_{$startDate}_{$endDate}_brand_{$brandId}_sort_{$sortBy}_order_{$orderBy}_page_{$perPage}";
+        return "daily_metric_{$startDate}_{$endDate}_brand_{$brandId}_sort_{$sortBy}_order_{$orderBy}_perPage_{$perPage}_page_{$page}";
     }
 }

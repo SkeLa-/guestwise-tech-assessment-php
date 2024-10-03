@@ -24,6 +24,7 @@ class CampaignController extends Controller
         $filters['start_date'] = !empty($filters['start_date']) ? $filters['start_date'] : date('Y-m-d', strtotime('-7 days'));
         $filters['end_date'] = !empty($filters['end_date']) ? $filters['end_date'] : date('Y-m-d');
         $sorting = $request->only(['sort_by', 'order_by']);
+        $filters['page'] = $request->get('page');
         $campaigns = $this->dailyMetricRepository->getCampaigns(array_merge($filters, $sorting), $perPage);
 
         return view('campaigns.index', [
